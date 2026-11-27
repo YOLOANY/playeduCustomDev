@@ -2,6 +2,8 @@
 
 基于 PlayEdu 2.3 开源版进行二次开发，在保留原有培训功能的基础上，增加 H5 学习轨迹、课程收藏、班级学习时长排行、培训学分自动核算、学期学分统计、管理端排名与班级汇总，并扩展管理后台的学员手机号、身份证号管理能力。
 
+GitHub 仓库：[`YOLOANY/playeduCustomDev`](https://github.com/YOLOANY/playeduCustomDev)
+
 二次开发分支：`main`
 
 ## 二次开发功能

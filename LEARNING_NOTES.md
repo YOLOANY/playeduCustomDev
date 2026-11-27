@@ -3,6 +3,8 @@
 > 面向导师评审与求职沟通
 >
 > 更新时间：2026-11-27
+>
+> 项目仓库：[`YOLOANY/playeduCustomDev`](https://github.com/YOLOANY/playeduCustomDev)
 
 ## 一、项目概述
 
