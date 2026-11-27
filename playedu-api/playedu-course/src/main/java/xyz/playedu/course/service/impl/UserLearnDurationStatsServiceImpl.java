@@ -18,10 +18,21 @@ package xyz.playedu.course.service.impl;
 import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import xyz.playedu.common.domain.Department;
+import xyz.playedu.common.exception.NotFoundException;
+import xyz.playedu.common.exception.ServiceException;
+import xyz.playedu.common.service.DepartmentService;
+import xyz.playedu.common.service.UserService;
+import xyz.playedu.course.domain.ClassDurationRank;
 import xyz.playedu.course.domain.UserLearnDurationStats;
 import xyz.playedu.course.mapper.UserLearnDurationStatsMapper;
 import xyz.playedu.course.service.UserLearnDurationStatsService;
@@ -35,6 +46,10 @@ import xyz.playedu.course.service.UserLearnDurationStatsService;
 public class UserLearnDurationStatsServiceImpl
         extends ServiceImpl<UserLearnDurationStatsMapper, UserLearnDurationStats>
         implements UserLearnDurationStatsService {
+
+    @Autowired private UserService userService;
+
+    @Autowired private DepartmentService departmentService;
 
     @Override
     @SneakyThrows
@@ -108,6 +123,60 @@ public class UserLearnDurationStatsServiceImpl
     public List<UserLearnDurationStats> dateBetween(Integer userId, String startAt, String endAt) {
         return list(
                 query().getWrapper().eq("user_id", userId).between("created_date", startAt, endAt));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClassDurationRank> classDurationRanking(
+            Integer userId, Integer depId, String range) throws NotFoundException {
+        List<Integer> userDepIds = userService.getDepIdsByUserId(userId);
+        Set<Integer> joinedDepIds = userDepIds == null ? Set.of() : new HashSet<>(userDepIds);
+        if (!joinedDepIds.contains(depId)) {
+            throw new ServiceException("当前学员未加入所选择班级");
+        }
+
+        Department selectedDepartment = departmentService.findOrFail(depId);
+        LocalDate today = currentDate();
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        switch (range == null ? "today" : range) {
+            case "today" -> {
+                startDate = today;
+                endDate = today.plusDays(1);
+            }
+            case "week" -> {
+                startDate = today.minusDays(today.getDayOfWeek().getValue() - 1L);
+                endDate = startDate.plusWeeks(1);
+            }
+            case "month" -> {
+                startDate = today.withDayOfMonth(1);
+                endDate = startDate.plusMonths(1);
+            }
+            case "all" -> {}
+            default -> throw new ServiceException("时间筛选参数无效");
+        }
+
+        List<ClassDurationRank> ranking =
+                baseMapper.classDurationRanking(
+                        selectedDepartment.getParentId(), startDate, endDate);
+        long previousAverage = -1L;
+        int previousRank = 0;
+        for (int index = 0; index < ranking.size(); index++) {
+            ClassDurationRank item = ranking.get(index);
+            long average = item.getAverageDuration() == null ? 0L : item.getAverageDuration();
+            if (index == 0 || average != previousAverage) {
+                previousRank = index + 1;
+                previousAverage = average;
+            }
+            item.setAverageDuration(average);
+            item.setRank(previousRank);
+            item.setCurrent(depId.equals(item.getDepId()));
+        }
+        return ranking;
+    }
+
+    LocalDate currentDate() {
+        return LocalDate.now();
     }
 
     @Override

@@ -473,6 +473,21 @@ public class UserController {
     }
 
     @SneakyThrows
+    @GetMapping("/class-learning-rank")
+    public JsonResponse classLearningRank(@RequestParam HashMap<String, Object> params) {
+        Integer depId = MapUtils.getInteger(params, "dep_id", 0);
+        String range = MapUtils.getString(params, "range", "today");
+        List<ClassDurationRank> ranking =
+                userLearnDurationStatsService.classDurationRanking(
+                        FCtx.getId(), depId, range);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("data", ranking);
+        data.put("range", range == null ? "today" : range);
+        return JsonResponse.data(data);
+    }
+
+    @SneakyThrows
     @GetMapping("/favorites")
     public JsonResponse favorites(@RequestParam HashMap<String, Object> params) {
         Integer page = MapUtils.getInteger(params, "page", 1);

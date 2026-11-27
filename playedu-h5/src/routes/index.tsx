@@ -23,6 +23,9 @@ const StudyPage = lazy(() => import("../pages/study/index"));
 const LearningTracksPage = lazy(() => import("../pages/learning-tracks/index"));
 const MyCreditsPage = lazy(() => import("../pages/my-credits/index"));
 const MyFavoritesPage = lazy(() => import("../pages/my-favorites/index"));
+const ClassLearningRankPage = lazy(
+  () => import("../pages/class-learning-rank/index")
+);
 //课程页面
 const CoursePage = lazy(() => import("../pages/course/index"));
 const CoursePlayPage = lazy(() => import("../pages/course/video"));
@@ -111,6 +114,10 @@ const routes: RouteObject[] = [
           {
             path: "/my-favorites",
             element: <PrivateRoute Component={<MyFavoritesPage />} />,
+          },
+          {
+            path: "/class-learning-rank",
+            element: <PrivateRoute Component={<ClassLearningRankPage />} />,
           },
           {
             path: "/course/:courseId",

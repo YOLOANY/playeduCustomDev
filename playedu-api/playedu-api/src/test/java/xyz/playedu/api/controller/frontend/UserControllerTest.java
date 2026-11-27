@@ -18,8 +18,10 @@ package xyz.playedu.api.controller.frontend;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -30,6 +32,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import xyz.playedu.common.context.FCtx;
+import xyz.playedu.course.domain.ClassDurationRank;
 import xyz.playedu.course.domain.Course;
 import xyz.playedu.course.domain.CourseHour;
 import xyz.playedu.course.domain.UserCourseHourRecord;
@@ -38,6 +41,7 @@ import xyz.playedu.course.service.CourseHourService;
 import xyz.playedu.course.service.CourseService;
 import xyz.playedu.course.service.UserCourseHourRecordService;
 import xyz.playedu.course.service.UserCourseRecordService;
+import xyz.playedu.course.service.UserLearnDurationStatsService;
 import xyz.playedu.resource.service.ResourceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +50,7 @@ class UserControllerTest {
     @Mock private CourseService courseService;
     @Mock private CourseHourService hourService;
     @Mock private UserCourseRecordService userCourseRecordService;
+    @Mock private UserLearnDurationStatsService userLearnDurationStatsService;
     @Mock private ResourceService resourceService;
 
     @InjectMocks private UserController controller;
@@ -88,6 +93,25 @@ class UserControllerTest {
         assertEquals(1, learns.size());
         assertEquals(12, learns.get(0).getHourRecord().getHourId());
         assertEquals(12, learns.get(0).getLastLearnHour().getId());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void classRankingUsesLoginIdentityAndRequestedRange() throws Exception {
+        ClassDurationRank item = new ClassDurationRank();
+        item.setDepId(11);
+        when(userLearnDurationStatsService.classDurationRanking(7, 11, "week"))
+                .thenReturn(List.of(item));
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("dep_id", "11");
+        params.put("range", "week");
+
+        Map<String, Object> data =
+                (Map<String, Object>) controller.classLearningRank(params).getData();
+
+        assertEquals("week", data.get("range"));
+        assertEquals(1, ((List<ClassDurationRank>) data.get("data")).size());
+        verify(userLearnDurationStatsService).classDurationRanking(7, 11, "week");
     }
 
     private UserCourseHourRecord record(int id, int courseId, int hourId) {

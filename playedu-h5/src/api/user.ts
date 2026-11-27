@@ -37,6 +37,16 @@ export function credits(page: number, size: number) {
   });
 }
 
+export function classLearningRank(
+  depId: number,
+  range: ClassLearningRankRange
+) {
+  return client.get("/api/v1/user/class-learning-rank", {
+    dep_id: depId,
+    range: range,
+  });
+}
+
 export function favorites(page: number, size: number) {
   return client.get("/api/v1/user/favorites", {
     page: page,

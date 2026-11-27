@@ -16,7 +16,11 @@
 package xyz.playedu.course.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import java.time.LocalDate;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import xyz.playedu.course.domain.ClassDurationRank;
 import xyz.playedu.course.domain.UserLearnDurationStats;
 
 /**
@@ -28,4 +32,9 @@ import xyz.playedu.course.domain.UserLearnDurationStats;
 public interface UserLearnDurationStatsMapper extends BaseMapper<UserLearnDurationStats> {
 
     Long getUserDuration(Integer userId);
+
+    List<ClassDurationRank> classDurationRanking(
+            @Param("parentId") Integer parentId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }
