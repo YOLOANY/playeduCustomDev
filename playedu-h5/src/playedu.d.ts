@@ -106,6 +106,23 @@ declare global {
     verify_at?: string;
   }
 
+  type ClassLearningRankRange = "today" | "week" | "month" | "all";
+
+  interface ClassLearningRankItemModel {
+    dep_id: number;
+    dep_name: string;
+    student_count: number;
+    total_duration: number;
+    average_duration: number;
+    rank: number;
+    is_current: boolean;
+  }
+
+  interface ClassLearningRankModel {
+    data: ClassLearningRankItemModel[];
+    range: ClassLearningRankRange;
+  }
+
   interface UserFavoritesModel {
     data: CourseModel[];
     total: number;

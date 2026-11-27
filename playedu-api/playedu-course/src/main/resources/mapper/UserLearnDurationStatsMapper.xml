@@ -20,4 +20,39 @@
         FROM `user_learn_duration_stats`
         where `user_id` = #{userId};
     </select>
+    <select id="classDurationRanking" resultType="xyz.playedu.course.domain.ClassDurationRank">
+        SELECT
+            d.id AS dep_id,
+            d.name AS dep_name,
+            COUNT(DISTINCT u.id) AS student_count,
+            COALESCE(SUM(s.duration), 0) AS total_duration,
+            CAST(
+                CASE
+                    WHEN COUNT(DISTINCT u.id) = 0 THEN 0
+                    ELSE FLOOR(COALESCE(SUM(s.duration), 0) / COUNT(DISTINCT u.id))
+                END
+                AS SIGNED
+            ) AS average_duration
+        FROM departments AS d
+        LEFT JOIN (
+            SELECT DISTINCT dep_id, user_id
+            FROM user_department
+        ) AS ud ON ud.dep_id = d.id
+        LEFT JOIN users AS u
+            ON u.id = ud.user_id
+            AND u.deleted = 0
+            AND u.is_active = 1
+            AND u.is_lock = 0
+        LEFT JOIN user_learn_duration_stats AS s
+            ON s.user_id = u.id
+            <if test="startDate != null">
+                AND s.created_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND s.created_date &lt; #{endDate}
+            </if>
+        WHERE d.parent_id = #{parentId}
+        GROUP BY d.id, d.name
+        ORDER BY average_duration DESC, total_duration DESC, d.id ASC
+    </select>
 </mapper>

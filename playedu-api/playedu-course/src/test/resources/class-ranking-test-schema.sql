@@ -1,0 +1,35 @@
+CREATE TABLE IF NOT EXISTS departments (
+    id INT UNSIGNED NOT NULL,
+    name VARCHAR(64) NOT NULL DEFAULT '',
+    parent_id INT NOT NULL DEFAULT 0,
+    parent_chain VARCHAR(255) NOT NULL DEFAULT '',
+    sort INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED NOT NULL,
+    email VARCHAR(191) NOT NULL DEFAULT '',
+    name VARCHAR(64) NOT NULL DEFAULT '',
+    is_active TINYINT NOT NULL DEFAULT 1,
+    is_lock TINYINT NOT NULL DEFAULT 0,
+    deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS user_department (
+    user_id INT UNSIGNED NOT NULL DEFAULT 0,
+    dep_id INT UNSIGNED NOT NULL DEFAULT 0,
+    KEY user_id (user_id),
+    KEY dep_id (dep_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS user_learn_duration_stats (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL DEFAULT 0,
+    duration BIGINT NOT NULL DEFAULT 0,
+    created_date DATE NOT NULL,
+    PRIMARY KEY (id),
+    KEY u_d (user_id, created_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

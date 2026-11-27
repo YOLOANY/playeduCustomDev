@@ -17,6 +17,8 @@ package xyz.playedu.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
+import xyz.playedu.common.exception.NotFoundException;
+import xyz.playedu.course.domain.ClassDurationRank;
 import xyz.playedu.course.domain.UserLearnDurationStats;
 
 /**
@@ -38,6 +40,9 @@ public interface UserLearnDurationStatsService extends IService<UserLearnDuratio
     Long userDuration(Integer userId);
 
     List<UserLearnDurationStats> dateBetween(Integer userId, String startAt, String endAt);
+
+    List<ClassDurationRank> classDurationRanking(Integer userId, Integer depId, String range)
+            throws NotFoundException;
 
     void remove(Integer userId);
 }

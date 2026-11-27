@@ -212,6 +212,16 @@
                 AND `b`.`user_id` = `a`.`user_id`;
     </select>
 
+    <sql id="LearningTracksFromWhere">
+        FROM user_course_hour_records AS r
+        INNER JOIN course_hour AS h ON r.hour_id = h.id
+        INNER JOIN courses AS c ON r.course_id = c.id
+        WHERE
+            r.user_id = #{userId}
+            AND r.is_finished = 1
+            AND r.finished_at IS NOT NULL
+    </sql>
+
     <select id="learningTracks" resultType="xyz.playedu.course.domain.UserLearningTrack">
         SELECT
             r.id AS record_id,
@@ -221,23 +231,13 @@
             h.title AS hour_title,
             h.type AS hour_type,
             r.finished_at
-        FROM user_course_hour_records AS r
-        INNER JOIN course_hour AS h ON r.hour_id = h.id
-        INNER JOIN courses AS c ON r.course_id = c.id
-        WHERE
-            r.user_id = #{userId}
-            AND r.is_finished = 1
-            AND r.finished_at IS NOT NULL
+        <include refid="LearningTracksFromWhere"/>
         ORDER BY r.finished_at DESC
-        LIMIT #{pageStart}, #{pageSize};
+        LIMIT #{pageStart}, #{pageSize}
     </select>
 
     <select id="learningTracksCount" resultType="java.lang.Long">
         SELECT COUNT(1)
-        FROM user_course_hour_records AS r
-        WHERE
-            r.user_id = #{userId}
-            AND r.is_finished = 1
-            AND r.finished_at IS NOT NULL;
+        <include refid="LearningTracksFromWhere"/>
     </select>
 </mapper>

@@ -264,6 +264,13 @@ const MemberPage = () => {
             <div className={styles["name"]}>我的收藏</div>
             <div className={styles["value"]}>查看收藏课程</div>
           </div>
+          <div
+            className={styles["record-item"]}
+            onClick={() => navigate("/class-learning-rank")}
+          >
+            <div className={styles["name"]}>班级排行</div>
+            <div className={styles["value"]}>查看学习时长</div>
+          </div>
         </div>
       </div>
       <Mask
