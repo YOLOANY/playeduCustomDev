@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordCourseCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserCountMapper;
 import xyz.playedu.common.types.mapper.UserCourseHourRecordUserFirstCreatedAtMapper;
@@ -181,6 +182,12 @@ public class UserCourseHourRecordServiceImpl
 
     @Override
     public PaginationResult<UserLearningTrack> learningTracks(Integer userId, int page, int size) {
+        if (page < 1) {
+            throw new ServiceException("页码必须大于等于 1");
+        }
+        if (size < 1) {
+            throw new ServiceException("每页数量必须大于等于 1");
+        }
         int pageStart = (page - 1) * size;
 
         PaginationResult<UserLearningTrack> pageResult = new PaginationResult<>();
