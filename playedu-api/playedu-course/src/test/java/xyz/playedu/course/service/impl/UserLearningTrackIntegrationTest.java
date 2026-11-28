@@ -16,6 +16,7 @@
 package xyz.playedu.course.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Timestamp;
@@ -30,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
+import xyz.playedu.common.exception.ServiceException;
 import xyz.playedu.common.types.paginate.PaginationResult;
 import xyz.playedu.course.domain.UserLearningTrack;
 
@@ -113,6 +115,28 @@ class UserLearningTrackIntegrationTest {
         assertEquals(List.of(9301), recordIds(secondPage));
         assertTrue(thirdPage.getData().isEmpty());
         assertEquals(2L, orphanRecordCount());
+    }
+
+    @Test
+    void rejectsPageBelowOne() {
+        ServiceException exception =
+                assertThrows(
+                        ServiceException.class,
+                        () -> recordService.learningTracks(USER_ID, 0, 20));
+
+        assertEquals("页码必须大于等于 1", exception.getMessage());
+    }
+
+    @Test
+    void rejectsPageSizeBelowOne() {
+        for (int size : List.of(0, -1)) {
+            ServiceException exception =
+                    assertThrows(
+                            ServiceException.class,
+                            () -> recordService.learningTracks(USER_ID, 1, size));
+
+            assertEquals("每页数量必须大于等于 1", exception.getMessage());
+        }
     }
 
     private List<Integer> recordIds(PaginationResult<UserLearningTrack> result) {
